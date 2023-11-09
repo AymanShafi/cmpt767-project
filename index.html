@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Data Visualizations</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Load d3.js library -->
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css">
+</head>
+<body>
+    <div class="navbar">
+        <a href="#income-mobility">Income Mobility</a>
+        <a href="#geographic-patterns">Geographic Patterns</a>
+        <a href="#network-graph">Major Outcomes</a>
+    </div>
+
+    <div id="income-mobility" class="viz-container">
+        <!-- Income Mobility Visualization goes here -->
+    </div>
+
+    <div id="geographic-patterns" class="viz-container">
+        <!-- Geographic Patterns Visualization goes here -->
+    </div>
+
+    <div id="network-graph" class="viz-container"></div>
+        <!-- Major Outcomes Visualization goes here -->
+    </div>
+
+    <!-- Scripts for the visualizations -->
+    <script src="income_mobility_detailed.js"></script>
+    <!-- The other visualization scripts will be added here -->
+    <script src="geographic_patterns_interactive.js"></script>
+    <script src="network_graph.js"></script>
+    
+<div id="map" class="map"></div>
+</body>
+</html>
