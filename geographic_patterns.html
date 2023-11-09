@@ -1,28 +1,52 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
+    <title>University Geographic Patterns</title>
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geographic Patterns</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://d3js.org/d3.v6.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <!-- <link rel="stylesheet" href="styles.css"> -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <style>
+        #map-container {
+            height: 600px;
+        }
+        .filter-container {
+            padding: 10px;
+        }
+        select {
+            padding: 5px;
+            margin-right: 10px;
+        }
+    </style>
 </head>
 <body>
-    
-<div class="navbar">
-    <a href="income_mobility.html">Income Mobility</a>
-    <a href="geographic_patterns.html">Geographic Patterns</a>
-    <a href="network_graph.html">Major Outcomes</a>
-</div>
-
-    <div id="geographic-patterns" class="viz-container">
-        
-        <!-- Geographic Patterns Visualization goes here -->
-    <div id="map" class="map"></div>
-    
+    <div class="navbar">
+        <a href="income_mobility.html">Income Mobility</a>
+        <a href="geographic_patterns.html">Geographic Patterns</a>
+        <a href="network_graph.html">Major Outcomes</a>
     </div>
+    <div class="filter-container">
+        <label for="tier-select">Tier:</label>
+        <select id="tier-select">
+            <option value="all">All Tiers</option>
+        </select>
+
+        <label for="state-select">State:</label>
+        <select id="state-select">
+            <option value="all">All States</option>
+        </select>
+
+        <label for="public-select">Public:</label>
+        <select id="public-select">
+            <option value="all">All</option>
+            <option value="1">Public</option>
+            <option value="0">Private</option>
+        </select>
+    </div>
+
+    <div id="map-container"></div>
     <script src="geographic_patterns_interactive.js"></script>
 </body>
 </html>

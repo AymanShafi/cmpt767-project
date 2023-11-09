@@ -56,3 +56,8 @@ svg {
     color: black
 }
 
+#map {
+    height: 500px; /* Example height, can be changed as needed */
+    width: 100%;
+    margin: 0 auto;
+}

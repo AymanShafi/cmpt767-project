@@ -1,91 +1,121 @@
-d3.csv("mrc_coords.csv").then(function(data) {
-    // Data preprocessing
-    data.forEach(function(d) {
-        d.ipeds_enrollment_2013 = +d.ipeds_enrollment_2013;
-        d.scorecard_median_earnings_2011 = +d.scorecard_median_earnings_2011;
+
+// Initialize the map
+var map = L.map('map-container').setView([37.8, -96], 4);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+// Define color array
+var colors = [
+    '#E63946', // Red
+    '#F4A261', // Orange
+    '#2A9D8F', // Teal
+    '#264653', // Dark Blue
+    '#2B2D42', // Darker Blue
+    '#8D99AE', // Gray Blue
+    '#EF476F', // Pink
+    '#06D6A0', // Light Green
+    '#118AB2', // Blue
+    '#073B4C'  // Dark Cyan
+];
+
+// Function to determine circle size
+function getSize(value) {
+    return value / 1000; // Example size scaling; adjust as needed
+}
+
+// Function to determine circle color based on the region
+function getColor(region) {
+    return colors[region % colors.length];
+}
+
+// Function to populate dropdowns
+function populateDropdowns(data) {
+    var tiers = new Set(data.map(d => d['Tier-name']));
+    var states = new Set(data.map(d => d.state));
+    var publicOptions = new Set(data.map(d => d.Public));
+
+    var tierSelect = d3.select('#tier-select');
+    var stateSelect = d3.select('#state-select');
+    var publicSelect = d3.select('#public-select');
+
+    tiers.forEach(function(tier) {
+        tierSelect.append('option').text(tier).attr('value', tier);
     });
 
-    // Initialize the map
-    var map = L.map('map').setView([37.8, -96], 4);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+    states.forEach(function(state) {
+        stateSelect.append('option').text(state).attr('value', state);
+    });
 
-    // Create a Leaflet SVG layer
-    var svgLayer = L.svg().addTo(map);
-    var svg = d3.select("#map").select("svg");
-    svg.attr("pointer-events", "auto");
+    publicOptions.forEach(function(option) {
+        publicSelect.append('option').text(option === '1' ? 'Public' : 'Private').attr('value', option);
+    });
+}
 
-    // Bubble size scale
-    var z = d3.scaleSqrt()
-        .domain([0, d3.max(data, function(d) { return d.ipeds_enrollment_2013; })])
-        .range([2, 30]);
+// Load the CSV data and add it to the map
+d3.csv('mrc_coords.csv').then(function(data) {
+    // Populate the dropdowns
+    populateDropdowns(data);
 
-    // Color scale for median earnings
-    var color = d3.scaleSequential(d3.interpolateCool)
-        .domain(d3.extent(data, function(d) { return d.scorecard_median_earnings_2011; }));
+    // Initial draw of the map
+    drawMap(data);
 
-    // Tooltip div for displaying information on hover
-    var tooltip = d3.select("body").append("div")
-        .attr("class", "tooltip")
-        .style("opacity", 0);
+    // Event listeners for the dropdowns
+    d3.select('#tier-select').on('change', function() {
+        tierFilter = d3.select(this).property('value');
+        drawMap(data);
+    });
 
-    // Dropdown menu for filtering
-    var dropdown = d3.select("#geographic-patterns")
-        .insert("select", "svg")
-        .on("change", function(event) {
-            update(d3.select(this).property("value"));
-        });
+    d3.select('#state-select').on('change', function() {
+        stateFilter = d3.select(this).property('value');
+        drawMap(data);
+    });
 
-    dropdown.selectAll("option")
-        .data([...new Set(data.map(d => d.university_name))])
-        .enter().append("option")
-        .text(d => d);
-
-    // Function to update the visualization
-    function update(selectedUniversity) {
-        var filteredData = data;
-        if (selectedUniversity && selectedUniversity !== "All") {
-            filteredData = data.filter(d => d.university_name === selectedUniversity);
-        }
-
-        svg.selectAll('circle').remove(); // Clear previous circles
-        
-        // Convert lat/lng to Leaflet layer point and update circles
-        var circles = svg.selectAll('circle')
-            .data(filteredData)
-            .enter()
-            .append('circle')
-            .attr('class', 'data-circle') // Add a class for CSS if needed
-            .attr('cx', function(d) { return map.latLngToLayerPoint([d.latitude, d.longitude]).x; })
-            .attr('cy', function(d) { return map.latLngToLayerPoint([d.latitude, d.longitude]).y; })
-            .attr('r', function(d) { return z(d.ipeds_enrollment_2013); })
-            .style('fill', function(d) { return color(d.scorecard_median_earnings_2011); })
-            .style('fill-opacity', 0.7)
-            .style('stroke', 'white')
-            .on("mouseover", function(event, d) {
-                tooltip.transition()
-                    .duration(200)
-                    .style("opacity", .9);
-                tooltip.html(d.university_name + "<br/>" + d.ipeds_enrollment_2013 + " students<br/>Median earnings: $" + d.scorecard_median_earnings_2011)
-                    .style("left", (event.pageX) + "px")
-                    .style("top", (event.pageY - 28) + "px");
-            })
-            .on("mouseout", function(d) {
-                tooltip.transition()
-                    .duration(500)
-                    .style("opacity", 0);
-            });
-
-        // Update position of circles when map is moved
-        map.on("moveend", function() {
-            svg.selectAll('circle')
-                .attr('cx', function(d) { return map.latLngToLayerPoint([d.latitude, d.longitude]).x; })
-                .attr('cy', function(d) { return map.latLngToLayerPoint([d.latitude, d.longitude]).y; });
-        });
-    }
-
-    // Call update function to initially populate the map
-    update();
+    d3.select('#public-select').on('change', function() {
+        publicFilter = d3.select(this).property('value');
+        drawMap(data);
+    });
 });
+
+// Initialize global variables for the filters
+var tierFilter = 'all';
+var stateFilter = 'all';
+var publicFilter = 'all';
+
+// Function to draw the map
+function drawMap(data) {
+    // Clear existing layers
+    map.eachLayer(function(layer) {
+        if (layer instanceof L.Circle) {
+            map.removeLayer(layer);
+        }
+    });
+
+    // Filter data based on dropdowns
+    var filteredData = data.filter(function(d) {
+        return (tierFilter === 'all' || d['Tier-name'] === tierFilter) &&
+               (stateFilter === 'all' || d['state'] === stateFilter) &&
+               (publicFilter === 'all' || d['Public'] === publicFilter);
+    });
+
+    // Add circles to the map based on the filtered data
+    filteredData.forEach(function(d) {
+        var lat = parseFloat(d.latitude);
+        var lng = parseFloat(d.longitude);
+        var region = parseInt(d.region, 10);
+
+        // Check if coordinates are valid
+        if (!isNaN(lat) && !isNaN(lng)) {
+            var circle = L.circle([lat, lng], {
+                color: getColor(region),
+                fillColor: getColor(region),
+                fillOpacity: 0.5,
+                radius: getSize(d.pct_business_2000)
+            }).addTo(map);
+
+            // Add tooltip
+            circle.bindTooltip(`Name: ${d.name}<br>Business %: ${d.pct_business_2000}<br>Region: ${d.region}`);
+        }
+    });
+}
