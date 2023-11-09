@@ -1,0 +1,53 @@
+#choropleth-map {
+    width: 960px;
+    height: 600px;
+}
+
+.states {
+    fill: #aaa;
+    stroke: #fff;
+    stroke-linejoin: round;
+}
+
+.states:hover {
+    fill: orange;
+}
+
+.state-label {
+    background-color: rgba(255, 255, 255, 0.5);
+    border: 1px solid #fff;
+    border-radius: 3px;
+    color: #555;
+    font-weight: bold;
+    text-align: center;
+}
+
+.legend {
+    padding: 6px 8px;
+    font: 14px Arial, Helvetica, sans-serif;
+    background: white;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+    line-height: 24px;
+    color: #555;
+}
+.legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.7;
+}
+
+.info.legend h4 {
+    margin: 0px;
+    padding: 0px;
+    font-size: 14px;
+    text-align: center;
+    border-bottom: 2px solid #bbb; /* Add a bottom border */
+    /* Add borders on other sides as needed, or use 'border' to add a border all around */
+}
+
+
+
