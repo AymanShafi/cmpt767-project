@@ -1,0 +1,54 @@
+
+/* Basic CSS for styling the page and visualizations */
+
+body, html {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.navbar {
+    overflow: hidden;
+    background-color: #333;
+}
+
+.navbar a {
+    float: left;
+    display: block;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.navbar a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+.viz-container {
+    margin: 20px;
+    padding: 20px;
+}
+
+svg {
+    width: 100%;
+    height: 500px; /* You can adjust the height as needed */
+    border: 1px solid black; /* Just to see the SVG area */
+}
+
+.tooltip {
+    position: absolute;
+    text-align: center;
+    width: 200px;
+    height: 80px;
+    padding: 2px;
+    font: 12px sans-serif;
+    background: lightsteelblue;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+    opacity: 0;
+}
