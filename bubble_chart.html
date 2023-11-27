@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bubble Chart</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css">
+</head>
+<body>
+<div class="navbar">
+    <a href="bubble_chart.html">Bubble Chart</a>
+    <a href="point_map.html">Point Map</a>
+    <a href="choropleth_index.html">Choropleth</a>
+    <a href="heatmap_index.html">Heatmap</a>
+</div>
+
+    <div id="income-mobility" class="viz-container">
+        <!-- Income Mobility Visualization goes here -->
+        <div class="float-container">
+            <div class="float-child">
+                <label for="select-state-income">Select State:</label>
+                <select id="select-state-income">
+                    <!-- Options will be dynamically populated using D3 in your JavaScript -->
+                </select>
+            
+
+            
+                <label for="select-tier-income">Select Tier:</label>
+                <select id="select-tier-income">
+                    <!-- Options will be dynamically populated using D3 in your JavaScript -->
+                </select>
+           
+                <label for="select-public-income">Select Public:</label>
+                <select id="select-public-income">
+                    <!-- Options will be dynamically populated using D3 in your JavaScript -->
+                </select>
+            </div>
+        </div>
+    </div>
+    <script src="bubble_chart.js"></script>
+</body>
+</html>

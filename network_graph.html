@@ -1,25 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
+    <title>Network Graph Visualization</title>
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Network Graph</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://d3js.org/d3.v6.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        #network-graph-container {
+            height: 600px;
+            width: 100%;
+        }
+        .navbar {
+            overflow: hidden;
+            background-color: #333;
+        }
+        .navbar a {
+            float: left;
+            display: block;
+            color: #f2f2f2;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+        .navbar a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+    </style>
 </head>
 <body>
-    
-<div class="navbar">
-    <a href="income_mobility.html">Income Mobility</a>
-    <a href="geographic_patterns.html">Geographic Patterns</a>
-    <a href="network_graph.html">Major Outcomes</a>
-</div>
-
-    <div id="network-graph" class="viz-container">
-        
+    <div class="navbar">
+        <a href="income_mobility.html">Income Mobility</a>
+        <a href="geographic_patterns.html">Geographic Patterns</a>
+        <a href="sankey_diagram.html">Major Outcomes</a>
+        <a href="network_graph.html">Network Graph</a>
     </div>
+    
+    <div class="filter-container">
+        <label for="cz-select">Commuting Zone:</label>
+        <select id="cz-select">
+            <option value="all">All Commuting Zones</option>
+            <!-- Commuting zones options will be populated here by the script -->
+        </select>
+    </div>
+
+    <div id="network-graph-container"></div>
     <script src="network_graph.js"></script>
 </body>
 </html>

@@ -1,99 +1,125 @@
+// network_graph.js
 
-// Load the data
-d3.csv("mrc_coords.csv").then(function(data) {
-    // Convert strings to numbers
-    data.forEach(function(d) {
-        d.md_earn_wne_p10 = +d.md_earn_wne_p10;
-        d.cdr3 = +d.cdr3;
+// Define the dimensions and margins for the graph
+const width = 960;
+const height = 600;
+const margin = { top: 0, right: 0, bottom: 0, left: 0 };
+
+// Append the svg object to the body of the page
+const svg = d3.select("#network-graph-container")
+  .append("svg")
+    .attr("viewBox", `0 0 ${width} ${height}`)
+    .append("g");
+
+// Add zoom capabilities 
+const zoom = d3.zoom()
+    .scaleExtent([0.1, 4])
+    .on('zoom', (event) => {
+        svg.attr('transform', event.transform);
     });
 
-    // Filter data to avoid undefined and extreme values for better visualization
-    data = data.filter(d => d.md_earn_wne_p10 && d.cdr3 && d.md_earn_wne_p10 > 0 && d.cdr3 >= 0 && d.cdr3 <= 1);
+// Apply the zoom to the svg container
+d3.select("svg").call(zoom);
 
-    // Width and height of the graph
-    var width = 960,
-        height = 600;
+// Load the data from the CSV file
+d3.csv("data_race_incarceration_income.csv").then(function(rawData) {
+  // Create nodes array
+  const nodes = rawData.map(d => {
+    return {
+      id: d.cz,
+      name: d.czname,
+      income: +d.kfr_pooled_pooled_p25,
+      incarceration: +d.jail_pooled_pooled_p25,
+      count: +d.pooled_pooled_count
+    };
+  });
 
-    // Create SVG element
-    var svg = d3.select("#network-graph")
-                .append("svg")
-                .attr("width", width)
-                .attr("height", height);
+  // Create the dropdown options
+  const czSelect = d3.select("#cz-select");
+  czSelect.selectAll("option.cz-option")
+    .data(nodes)
+    .enter()
+    .append("option")
+    .attr("value", d => d.id)
+    .attr("class", "cz-option")
+    .text(d => d.name);
 
-    // Scales for node sizes and colors
-    var sizeScale = d3.scaleSqrt()
-                      .domain(d3.extent(data, d => d.md_earn_wne_p10))
-                      .range([3, 20]);
-    
-    var colorScale = d3.scaleQuantize()
-                       .domain(d3.extent(data, d => d.cdr3))
-                       .range(d3.schemeBlues[9]);
+  // Dummy links array for illustration (real links would be based on data relationships)
+  const links = nodes.map((node, index, arr) => {
+    const targetIndex = (index + 1) % arr.length;
+    return {
+      source: node.id,
+      target: arr[targetIndex].id
+    };
+  });
 
-    // Tooltip for node hover information
-    var tooltip = d3.select("#network-graph").append("div")
-                    .attr("class", "tooltip")
-                    .style("opacity", 0);
+  // Create the simulation
+  const simulation = d3.forceSimulation(nodes)
+    .force("link", d3.forceLink(links).id(d => d.id))
+    .force("charge", d3.forceManyBody().strength(-50))
+    .force("center", d3.forceCenter(width / 2, height / 2));
 
-    // Force simulation for positioning nodes
-    var simulation = d3.forceSimulation(data)
-                       .force("link", d3.forceLink().id(d => d.unitid))
-                       .force("charge", d3.forceManyBody().strength(-50))
-                       .force("center", d3.forceCenter(width / 2, height / 2));
+  // Add links
+  const link = svg.append("g")
+    .selectAll("line")
+    .data(links)
+    .enter().append("line")
+      .style("stroke", "#aaa");
 
-    // Draw nodes
-    var node = svg.append("g")
-                  .attr("class", "nodes")
-                  .selectAll("circle")
-                  .data(data)
-                  .enter().append("circle")
-                  .attr("r", d => sizeScale(d.md_earn_wne_p10))
-                  .attr("fill", d => colorScale(d.cdr3))
-                  .call(d3.drag()
-                          .on("start", dragstarted)
-                          .on("drag", dragged)
-                          .on("end", dragended))
-                  .on("mouseover", function(event, d) {
-                      tooltip.transition()
-                             .duration(200)
-                             .style("opacity", .9);
-                      tooltip.html(d.instnm + "<br/> Median Earnings: $" + d.md_earn_wne_p10 +
-                                   "<br/> Cohort Default Rate: " + (d.cdr3 * 100).toFixed(2) + "%")
-                             .style("left", (event.pageX) + "px")
-                             .style("top", (event.pageY - 28) + "px");
-                  })
-                  .on("mouseout", function(d) {
-                      tooltip.transition()
-                             .duration(500)
-                             .style("opacity", 0);
-                  });
+  // Add nodes
+  const node = svg.append("g")
+    .selectAll("circle")
+    .data(nodes)
+    .enter().append("circle")
+      .attr("r", d => Math.sqrt(d.count) / 100)
+      .style("fill", "#69b3a2");
 
-    // Add legend for color scale
-    // ...
-
-    // Simulation tick function
-    simulation.on("tick", function() {
-        node.attr("cx", d => d.x)
-            .attr("cy", d => d.y);
+  // Define drag behavior
+  const drag = d3.drag()
+    .on("start", (event, d) => {
+      if (!event.active) simulation.alphaTarget(0.3).restart();
+      d.fx = d.x;
+      d.fy = d.y;
+    })
+    .on("drag", (event, d) => {
+      d.fx = event.x;
+      d.fy = event.y;
+    })
+    .on("end", (event, d) => {
+      if (!event.active) simulation.alphaTarget(0);
+      d.fx = null;
+      d.fy = null;
     });
 
-    // Drag functions for nodes
-    function dragstarted(event, d) {
-        if (!event.active) simulation.alphaTarget(0.3).restart();
-        d.fx = d.x;
-        d.fy = d.y;
-    }
+  // Apply drag behavior to nodes
+  node.call(drag);
 
-    function dragged(event, d) {
-        d.fx = event.x;
-        d.fy = event.y;
-    }
+  // Simulation tick
+  simulation.on("tick", () => {
+    link
+      .attr("x1", d => d.source.x)
+      .attr("y1", d => d.source.y)
+      .attr("x2", d => d.target.x)
+      .attr("y2", d => d.target.y);
 
-    function dragended(event, d) {
-        if (!event.active) simulation.alphaTarget(0);
-        d.fx = null;
-        d.fy = null;
-    }
+    node
+      .attr("cx", d => d.x)
+      .attr("cy", d => d.y);
+  });
+
+  // Dropdown change event
+  czSelect.on("change", event => {
+    const selectedCZ = event.target.value;
+    const filteredNodes = nodes.filter(d => d.id === selectedCZ || selectedCZ === "all");
+    const filteredLinks = links.filter(d => d.source.id === selectedCZ || d.target.id === selectedCZ || selectedCZ === "all");
+
+    // Update the nodes and links with the filtered data
+    node.data(filteredNodes, d => d.id).join("circle").attr("visibility", "visible");
+    link.data(filteredLinks, d => d.source.id + "-" + d.target.id).join("line").attr("visibility", "visible");
+
+    // Restart the simulation with the new data
+    simulation.nodes(filteredNodes);
+    simulation.force("link").links(filteredLinks);
+    simulation.alpha(1).restart();
+  });
 });
-
-// Legend for color scale
-// ...
